@@ -10,13 +10,13 @@ Someone adds an emoji reaction to the post with a :question: (or custom emoji). 
 
 ## Resources
 
-This `slack-researcher` folder contains a starter implementation of a Slack bot hosted using serverless functions on Vercel. Some documentation has been included in `docs` to help with the project setup.
+This repo contains a starter implementation of a Slack bot hosted using serverless functions on Vercel. Some documentation has been included in `docs` to help with the project setup.
 
 ### Codebase overview
 
 There's `messageParser.js` that uses AI to extract the charity named in the Slack message, then `charityLookup.js` searches for information about that charity. `reportFormatter.js`  returns a neatly formatted message. The main logic / serverless API route is all handled in `api/slack-events.js`.
 
-For development mode, an additional dev-mode only request is supported in `api/slack-events.js`. An express server has been created in `/dev/dev-server.js` with accompanying index.html file to send and receive API requests without having to use Slack. See the [local development docs](/slack-researcher/docs/Local%20development.md) for more information.
+For development mode, an additional dev-mode only request is supported in `api/slack-events.js`. An express server has been created in `/dev/dev-server.js` with accompanying index.html file to send and receive API requests without having to use Slack. See the [local development docs](https://github.com/jhancock532/slack-researcher/docs/Local%20development.md) for more information.
 
 ### Deployment guide
 
