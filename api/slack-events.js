@@ -14,7 +14,7 @@ const { formatCharityReport, formatErrorMessage } = require('../src/reportFormat
 module.exports = async (req, res) => {
   try {
     const config = getConfig();
-    
+
     // Development mode - bypass Slack integration
     if (process.env.NODE_ENV === 'development') {
       return await handleDevModeRequest(req, res);
@@ -39,12 +39,12 @@ module.exports = async (req, res) => {
     }
 
     const event = req.body.event;
-    
+
     // Handle reaction_added events
     if (event && event.type === 'reaction_added') {
       // Check if reaction is the trigger emoji
       if (event.reaction === config.app.triggerEmoji) {
-        await handleCharityLookupRequest(slack, event);
+        setTimeout(() => handleCharityLookupRequest(slack, event), 0);
       }
     }
 
@@ -108,7 +108,7 @@ async function handleCharityLookupRequest(slack, event) {
 
     // Extract charity name from message
     const charityName = await extractCharityName(messageText);
-    
+
     if (!charityName) {
       // Post error message if no charity name found
       await slack.chat.postMessage({
@@ -129,10 +129,10 @@ async function handleCharityLookupRequest(slack, event) {
     try {
       // Lookup charity information
       const charityData = await lookupCharity(charityName);
-      
+
       // Format and post research results
       const report = formatCharityReport(charityData, charityName);
-      
+
       // Update the searching message with results
       await slack.chat.update({
         channel: event.item.channel,
@@ -142,7 +142,7 @@ async function handleCharityLookupRequest(slack, event) {
 
     } catch (lookupError) {
       console.error('Error during charity lookup:', lookupError);
-      
+
       // Update searching message with error
       await slack.chat.update({
         channel: event.item.channel,
@@ -153,7 +153,7 @@ async function handleCharityLookupRequest(slack, event) {
 
   } catch (error) {
     console.error('Error handling charity lookup request:', error);
-    
+
     // Post generic error message
     try {
       await slack.chat.postMessage({
@@ -173,9 +173,9 @@ async function handleDevModeRequest(req, res) {
   try {
     // Expect a simple message in the request body
     const { message } = req.body;
-    
+
     if (!message) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Missing message field in request body',
         example: { message: 'Please research Oxfam charity' }
       });
@@ -183,7 +183,7 @@ async function handleDevModeRequest(req, res) {
 
     // Extract charity name from message
     const charityName = await extractCharityName(message);
-    
+
     if (!charityName) {
       return res.status(200).json({
         success: false,
@@ -196,10 +196,10 @@ async function handleDevModeRequest(req, res) {
     try {
       // Lookup charity information
       const charityData = await lookupCharity(charityName);
-      
+
       // Format report (but don't send to Slack)
       const report = formatCharityReport(charityData, charityName);
-      
+
       return res.status(200).json({
         success: true,
         message: message,
@@ -210,9 +210,9 @@ async function handleDevModeRequest(req, res) {
 
     } catch (lookupError) {
       console.error('Error during charity lookup:', lookupError);
-      
+
       const errorReport = formatErrorMessage(charityName, 'api_error');
-      
+
       return res.status(200).json({
         success: false,
         message: message,
@@ -225,9 +225,9 @@ async function handleDevModeRequest(req, res) {
 
   } catch (error) {
     console.error('Error in dev mode handler:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Internal server error',
-      details: error.message 
+      details: error.message
     });
   }
 }
